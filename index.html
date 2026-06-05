@@ -1,10 +1,782 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>belajar git github</title>
-  </head>
-  <body>
-<h1>belajar clone repo dari git hub</h1>
-  </body>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to Prompt Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .image-upload {
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            background: #f8f9ff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .image-upload:hover {
+            background: #eef1ff;
+            border-color: #764ba2;
+        }
+
+        .image-upload img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .image-upload.has-image img {
+            display: block;
+        }
+
+        .image-upload.has-image .upload-text {
+            display: none;
+        }
+
+        #imageInput {
+            display: none;
+        }
+
+        .form-section {
+            margin-bottom: 25px;
+        }
+
+        .form-section h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: #f8f9ff;
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+        }
+
+        .language-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .language-selector label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            padding: 10px 20px;
+            background: #f8f9ff;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .language-selector input[type="radio"] {
+            width: auto;
+        }
+
+        .language-selector input[type="radio"]:checked + span {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .result-section {
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            border: 2px solid #667eea;
+        }
+
+        .result-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        #promptResult {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            min-height: 100px;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+        .copy-btn {
+            background: #28a745;
+            margin-top: 15px;
+        }
+
+        .copy-btn:hover {
+            box-shadow: 0 5px 20px rgba(40, 167, 69, 0.4);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .checkbox-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎨 Image to Prompt Generator</h1>
+            <p>Buat prompt detail dari gambar Anda dengan struktur profesional</p>
+        </header>
+
+        <div class="content">
+            <!-- Language Selector -->
+            <div class="language-selector">
+                <label>
+                    <input type="radio" name="language" value="en" checked>
+                    <span>English</span>
+                </label>
+                <label>
+                    <input type="radio" name="language" value="id">
+                    <span>Bahasa Indonesia</span>
+                </label>
+            </div>
+
+            <!-- Image Upload -->
+            <div class="image-upload" id="imageUpload" onclick="document.getElementById('imageInput').click()">
+                <div class="upload-text">
+                    <p style="font-size: 3em;">📷</p>
+                    <p><strong>Klik untuk upload gambar</strong></p>
+                    <p>atau drag & drop gambar di sini</p>
+                </div>
+                <img id="previewImage" alt="Preview">
+                <input type="file" id="imageInput" accept="image/*" onchange="previewImageFunc(this)">
+            </div>
+
+            <!-- Form Sections -->
+            <form id="promptForm">
+                <!-- Subject -->
+                <div class="form-section">
+                    <h3>👤 Subject (Subjek Utama)</h3>
+                    <div class="form-group">
+                        <label for="subject">Deskripsi Subjek:</label>
+                        <textarea id="subject" placeholder="Contoh: seorang wanita muda, robot futuristik, pemandangan gunung..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Detail Tambahan:</label>
+                        <input type="text" id="subjectDetails" placeholder="usia, ekspresi wajah, pakaian, warna rambut, dll.">
+                    </div>
+                </div>
+
+                <!-- Action/Pose -->
+                <div class="form-section">
+                    <h3>🏃 Action/Pose (Aksi/Pose)</h3>
+                    <div class="form-group">
+                        <label for="action">Aksi atau Pose:</label>
+                        <textarea id="action" placeholder="Contoh: berdiri tegak, duduk santai, berlari, melompat..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Gestur Tangan/Ekspresi:</label>
+                        <input type="text" id="gesture" placeholder="Contoh: tangan terangkat, tersenyum lebar, pandangan tajam...">
+                    </div>
+                </div>
+
+                <!-- Environment -->
+                <div class="form-section">
+                    <h3>🌍 Environment (Lingkungan)</h3>
+                    <div class="form-group">
+                        <label for="environment">Lokasi/Latar Belakang:</label>
+                        <textarea id="environment" placeholder="Contoh: hutan tropis, kota futuristik, pantai saat sunset..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Elemen Lingkungan:</label>
+                        <input type="text" id="envElements" placeholder="Contoh: pohon rindang, gedung pencakar langit, ombak laut...">
+                    </div>
+                    <div class="form-group">
+                        <label>Waktu/Cuaca:</label>
+                        <input type="text" id="weather" placeholder="Contoh: pagi hari, hujan, berawan, malam bintang...">
+                    </div>
+                </div>
+
+                <!-- Lighting -->
+                <div class="form-section">
+                    <h3>💡 Lighting (Pencahayaan)</h3>
+                    <div class="form-group">
+                        <label for="lighting">Jenis Pencahayaan:</label>
+                        <select id="lighting">
+                            <option value="">-- Pilih --</option>
+                            <option value="natural light">Natural Light (Cahaya Alami)</option>
+                            <option value="studio lighting">Studio Lighting</option>
+                            <option value="golden hour">Golden Hour</option>
+                            <option value="blue hour">Blue Hour</option>
+                            <option value="dramatic lighting">Dramatic Lighting</option>
+                            <option value="soft lighting">Soft Lighting</option>
+                            <option value="hard lighting">Hard Lighting</option>
+                            <option value="backlight">Backlight</option>
+                            <option value="rim lighting">Rim Lighting</option>
+                            <option value="volumetric lighting">Volumetric Lighting</option>
+                            <option value="neon lighting">Neon Lighting</option>
+                            <option value="cinematic lighting">Cinematic Lighting</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Arah Cahaya:</label>
+                        <input type="text" id="lightDirection" placeholder="Contoh: dari kiri, dari atas, dari belakang...">
+                    </div>
+                    <div class="form-group">
+                        <label>Intensitas:</label>
+                        <select id="lightIntensity">
+                            <option value="">-- Pilih --</option>
+                            <option value="soft">Lembut (Soft)</option>
+                            <option value="medium">Sedang (Medium)</option>
+                            <option value="harsh">Keras (Harsh)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Camera -->
+                <div class="form-section">
+                    <h3>📷 Camera (Kamera)</h3>
+                    <div class="form-group">
+                        <label>Sudut Pengambilan:</label>
+                        <select id="cameraAngle">
+                            <option value="">-- Pilih --</option>
+                            <option value="eye level">Eye Level</option>
+                            <option value="low angle">Low Angle (Dari Bawah)</option>
+                            <option value="high angle">High Angle (Dari Atas)</option>
+                            <option value="bird's eye view">Bird's Eye View</option>
+                            <option value="worm's eye view">Worm's Eye View</option>
+                            <option value="dutch angle">Dutch Angle</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Jenis Shot:</label>
+                        <select id="shotType">
+                            <option value="">-- Pilih --</option>
+                            <option value="close-up">Close-up</option>
+                            <option value="medium shot">Medium Shot</option>
+                            <option value="full shot">Full Shot</option>
+                            <option value="extreme close-up">Extreme Close-up</option>
+                            <option value="wide shot">Wide Shot</option>
+                            <option value="over the shoulder">Over the Shoulder</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Lensa/Focal Length:</label>
+                        <input type="text" id="lens" placeholder="Contoh: 50mm, 85mm, wide angle, telephoto...">
+                    </div>
+                    <div class="form-group">
+                        <label>Depth of Field:</label>
+                        <select id="depthOfField">
+                            <option value="">-- Pilih --</option>
+                            <option value="shallow">Shallow (Bokeh)</option>
+                            <option value="deep">Deep (Tajam Semua)</option>
+                            <option value="medium">Medium</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Art Style -->
+                <div class="form-section">
+                    <h3>🎨 Art Style (Gaya Seni)</h3>
+                    <div class="form-group">
+                        <label>Gaya Utama:</label>
+                        <select id="artStyle">
+                            <option value="">-- Pilih --</option>
+                            <option value="photorealistic">Photorealistic</option>
+                            <option value="digital art">Digital Art</option>
+                            <option value="oil painting">Oil Painting</option>
+                            <option value="watercolor">Watercolor</option>
+                            <option value="anime">Anime/Manga</option>
+                            <option value="cartoon">Cartoon</option>
+                            <option value="concept art">Concept Art</option>
+                            <option value="fantasy art">Fantasy Art</option>
+                            <option value="sci-fi art">Sci-Fi Art</option>
+                            <option value="impressionism">Impressionism</option>
+                            <option value="surrealism">Surrealism</option>
+                            <option value="minimalist">Minimalist</option>
+                            <option value="cyberpunk">Cyberpunk</option>
+                            <option value="steampunk">Steampunk</option>
+                            <option value="noir">Noir</option>
+                            <option value="pop art">Pop Art</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Artist Reference (Opsional):</label>
+                        <input type="text" id="artist" placeholder="Contoh: Greg Rutkowski, Artgerm, Loish...">
+                    </div>
+                    <div class="form-group">
+                        <label>Mood/Suasana:</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" value="dramatic" name="mood"> Dramatic
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" value="peaceful" name="mood"> Peaceful
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" value="mysterious" name="mood"> Mysterious
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" value="energetic" name="mood"> Energetic
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" value="romantic" name="mood"> Romantic
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" value="dark" name="mood"> Dark
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" value="bright" name="mood"> Bright
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" value="melancholic" name="mood"> Melancholic
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Color Palette:</label>
+                        <input type="text" id="colorPalette" placeholder="Contoh: warm tones, cool colors, monochrome, vibrant...">
+                    </div>
+                </div>
+
+                <!-- Technical -->
+                <div class="form-section">
+                    <h3>⚙️ Technical (Teknis)</h3>
+                    <div class="form-group">
+                        <label>Quality Tags:</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" value="masterpiece" name="quality" checked> Masterpiece
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" value="best quality" name="quality" checked> Best Quality
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" value="high resolution" name="quality" checked> High Resolution
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" value="ultra detailed" name="quality"> Ultra Detailed
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" value="sharp focus" name="quality" checked> Sharp Focus
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Render Engine/Style:</label>
+                        <input type="text" id="renderEngine" placeholder="Contoh: Unreal Engine 5, Octane Render, V-Ray...">
+                    </div>
+                    <div class="form-group">
+                        <label>Aspect Ratio:</label>
+                        <select id="aspectRatio">
+                            <option value="">-- Pilih --</option>
+                            <option value="1:1">1:1 (Square)</option>
+                            <option value="16:9">16:9 (Landscape)</option>
+                            <option value="9:16">9:16 (Portrait)</option>
+                            <option value="4:3">4:3 (Standard)</option>
+                            <option value="3:2">3:2 (Photo)</option>
+                            <option value="21:9">21:9 (Ultrawide)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Additional Technical Details:</label>
+                        <textarea id="technicalDetails" placeholder="Contoh: ray tracing, global illumination, HDR, 8K, dll..."></textarea>
+                    </div>
+                </div>
+
+                <button type="button" class="btn" onclick="generatePrompt()">✨ Generate Prompt</button>
+            </form>
+
+            <!-- Result Section -->
+            <div class="result-section" id="resultSection">
+                <h3>📝 Hasil Prompt:</h3>
+                <div id="promptResult"></div>
+                <button type="button" class="btn copy-btn" onclick="copyToClipboard()">📋 Copy Prompt</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Image Preview
+        function previewImageFunc(input) {
+            const imageUpload = document.getElementById('imageUpload');
+            const previewImage = document.getElementById('previewImage');
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    imageUpload.classList.add('has-image');
+                }
+                
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Drag and Drop
+        const imageUpload = document.getElementById('imageUpload');
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            imageUpload.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        imageUpload.addEventListener('dragover', (e) => {
+            imageUpload.style.background = '#eef1ff';
+            imageUpload.style.borderColor = '#764ba2';
+        });
+
+        imageUpload.addEventListener('dragleave', () => {
+            imageUpload.style.background = '#f8f9ff';
+            imageUpload.style.borderColor = '#667eea';
+        });
+
+        imageUpload.addEventListener('drop', (e) => {
+            imageUpload.style.background = '#f8f9ff';
+            imageUpload.style.borderColor = '#667eea';
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type.startsWith('image/')) {
+                const input = document.getElementById('imageInput');
+                input.files = files;
+                previewImageFunc(input);
+            }
+        });
+
+        // Generate Prompt
+        function generatePrompt() {
+            const language = document.querySelector('input[name="language"]:checked').value;
+            
+            // Collect all form data
+            const subject = document.getElementById('subject').value.trim();
+            const subjectDetails = document.getElementById('subjectDetails').value.trim();
+            const action = document.getElementById('action').value.trim();
+            const gesture = document.getElementById('gesture').value.trim();
+            const environment = document.getElementById('environment').value.trim();
+            const envElements = document.getElementById('envElements').value.trim();
+            const weather = document.getElementById('weather').value.trim();
+            const lighting = document.getElementById('lighting').value;
+            const lightDirection = document.getElementById('lightDirection').value.trim();
+            const lightIntensity = document.getElementById('lightIntensity').value;
+            const cameraAngle = document.getElementById('cameraAngle').value;
+            const shotType = document.getElementById('shotType').value;
+            const lens = document.getElementById('lens').value.trim();
+            const depthOfField = document.getElementById('depthOfField').value;
+            const artStyle = document.getElementById('artStyle').value;
+            const artist = document.getElementById('artist').value.trim();
+            const colorPalette = document.getElementById('colorPalette').value.trim();
+            const renderEngine = document.getElementById('renderEngine').value.trim();
+            const aspectRatio = document.getElementById('aspectRatio').value;
+            const technicalDetails = document.getElementById('technicalDetails').value.trim();
+
+            // Get selected moods
+            const moods = Array.from(document.querySelectorAll('input[name="mood"]:checked')).map(cb => cb.value);
+            
+            // Get selected quality tags
+            const qualityTags = Array.from(document.querySelectorAll('input[name="quality"]:checked')).map(cb => cb.value);
+
+            // Build prompt based on language
+            let prompt = '';
+
+            if (language === 'id') {
+                // Indonesian prompt structure
+                const parts = [];
+
+                // Subject
+                if (subject) {
+                    let subjectPart = `Subjek: ${subject}`;
+                    if (subjectDetails) subjectPart += `, ${subjectDetails}`;
+                    parts.push(subjectPart);
+                }
+
+                // Action/Pose
+                if (action || gesture) {
+                    let actionPart = `Aksi/Pose: ${action}`;
+                    if (gesture) actionPart += `, ${gesture}`;
+                    parts.push(actionPart);
+                }
+
+                // Environment
+                if (environment || envElements || weather) {
+                    let envPart = `Lingkungan: ${environment}`;
+                    if (envElements) envPart += `, ${envElements}`;
+                    if (weather) envPart += `, ${weather}`;
+                    parts.push(envPart);
+                }
+
+                // Lighting
+                if (lighting || lightDirection || lightIntensity) {
+                    let lightPart = `Pencahayaan: ${lighting}`;
+                    if (lightDirection) lightPart += `, ${lightDirection}`;
+                    if (lightIntensity) lightPart += `, intensitas ${lightIntensity === 'soft' ? 'lembut' : lightIntensity === 'harsh' ? 'keras' : 'sedang'}`;
+                    parts.push(lightPart);
+                }
+
+                // Camera
+                if (cameraAngle || shotType || lens || depthOfField) {
+                    let cameraPart = 'Kamera: ';
+                    const cameraDetails = [];
+                    if (cameraAngle) cameraDetails.push(cameraAngle);
+                    if (shotType) cameraDetails.push(shotType);
+                    if (lens) cameraDetails.push(`lensa ${lens}`);
+                    if (depthOfField) cameraDetails.push(`depth of field ${depthOfField === 'shallow' ? 'dangkal (bokeh)' : depthOfField === 'deep' ? 'dalam' : 'sedang'}`);
+                    cameraPart += cameraDetails.join(', ');
+                    parts.push(cameraPart);
+                }
+
+                // Art Style
+                if (artStyle || artist || moods.length > 0 || colorPalette) {
+                    let stylePart = `Gaya Seni: ${artStyle}`;
+                    if (artist) stylePart += `, oleh ${artist}`;
+                    if (moods.length > 0) stylePart += `, suasana: ${moods.join(', ')}`;
+                    if (colorPalette) stylePart += `, palet warna: ${colorPalette}`;
+                    parts.push(stylePart);
+                }
+
+                // Technical
+                if (qualityTags.length > 0 || renderEngine || aspectRatio || technicalDetails) {
+                    let techPart = 'Teknis: ';
+                    const techDetails = [];
+                    if (qualityTags.length > 0) techDetails.push(qualityTags.join(', '));
+                    if (renderEngine) techDetails.push(`render: ${renderEngine}`);
+                    if (aspectRatio) techDetails.push(`rasio aspek: ${aspectRatio}`);
+                    if (technicalDetails) techDetails.push(technicalDetails);
+                    techPart += techDetails.join(', ');
+                    parts.push(techPart);
+                }
+
+                prompt = parts.join('\n\n');
+
+            } else {
+                // English prompt structure
+                const parts = [];
+
+                // Subject
+                if (subject) {
+                    let subjectPart = `Subject: ${subject}`;
+                    if (subjectDetails) subjectPart += `, ${subjectDetails}`;
+                    parts.push(subjectPart);
+                }
+
+                // Action/Pose
+                if (action || gesture) {
+                    let actionPart = `Action/Pose: ${action}`;
+                    if (gesture) actionPart += `, ${gesture}`;
+                    parts.push(actionPart);
+                }
+
+                // Environment
+                if (environment || envElements || weather) {
+                    let envPart = `Environment: ${environment}`;
+                    if (envElements) envPart += `, ${envElements}`;
+                    if (weather) envPart += `, ${weather}`;
+                    parts.push(envPart);
+                }
+
+                // Lighting
+                if (lighting || lightDirection || lightIntensity) {
+                    let lightPart = `Lighting: ${lighting}`;
+                    if (lightDirection) lightPart += `, ${lightDirection}`;
+                    if (lightIntensity) lightPart += `, ${lightIntensity} intensity`;
+                    parts.push(lightPart);
+                }
+
+                // Camera
+                if (cameraAngle || shotType || lens || depthOfField) {
+                    let cameraPart = 'Camera: ';
+                    const cameraDetails = [];
+                    if (cameraAngle) cameraDetails.push(cameraAngle);
+                    if (shotType) cameraDetails.push(shotType);
+                    if (lens) cameraDetails.push(`${lens} lens`);
+                    if (depthOfField) cameraDetails.push(`${depthOfField} depth of field`);
+                    cameraPart += cameraDetails.join(', ');
+                    parts.push(cameraPart);
+                }
+
+                // Art Style
+                if (artStyle || artist || moods.length > 0 || colorPalette) {
+                    let stylePart = `Art Style: ${artStyle}`;
+                    if (artist) stylePart += `, by ${artist}`;
+                    if (moods.length > 0) stylePart += `, mood: ${moods.join(', ')}`;
+                    if (colorPalette) stylePart += `, color palette: ${colorPalette}`;
+                    parts.push(stylePart);
+                }
+
+                // Technical
+                if (qualityTags.length > 0 || renderEngine || aspectRatio || technicalDetails) {
+                    let techPart = 'Technical: ';
+                    const techDetails = [];
+                    if (qualityTags.length > 0) techDetails.push(qualityTags.join(', '));
+                    if (renderEngine) techDetails.push(`${renderEngine} render`);
+                    if (aspectRatio) techDetails.push(`aspect ratio: ${aspectRatio}`);
+                    if (technicalDetails) techDetails.push(technicalDetails);
+                    techPart += techDetails.join(', ');
+                    parts.push(techPart);
+                }
+
+                prompt = parts.join('\n\n');
+            }
+
+            // Display result
+            document.getElementById('promptResult').textContent = prompt || (language === 'id' 
+                ? 'Silakan isi minimal satu field untuk menghasilkan prompt.' 
+                : 'Please fill in at least one field to generate a prompt.');
+        }
+
+        // Copy to Clipboard
+        function copyToClipboard() {
+            const promptText = document.getElementById('promptResult').textContent;
+            
+            if (promptText) {
+                navigator.clipboard.writeText(promptText).then(() => {
+                    const copyBtn = document.querySelector('.copy-btn');
+                    const originalText = copyBtn.textContent;
+                    copyBtn.textContent = '✅ Copied!';
+                    
+                    setTimeout(() => {
+                        copyBtn.textContent = originalText;
+                    }, 2000);
+                }).catch(err => {
+                    alert('Failed to copy: ' + err);
+                });
+            }
+        }
+    </script>
+</body>
 </html>
